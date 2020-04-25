@@ -3,12 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.9.11",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.50",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1"
+    "react-redux": "^7.2.0",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "3.4.1",
+    "redux": "^4.0.5",
+    "typeface-roboto": "0.0.75"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -30,5 +37,14 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "browserify": "^16.2.2",
+    "@grpc/proto-loader": "^0.3.0",
+    "google-protobuf": "^3.6.1",
+    "grpc": "^1.15.0",
+    "grpc-web": "^1.0.0",
+    "webpack": "^4.16.5",
+    "webpack-cli": "^3.1.0"
   }
 }

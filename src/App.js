@@ -1,25 +1,30 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+//import './App.css'
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import Login from './pages/login';
+import Ghost from './pages/ghost';
+import Ghost2 from './pages/ghost2';
+import Nav from './pages/Nav';
+import NavMate from './pages/NavMate';
+import Footer from './pages/footer';
 
-function App() {
+
+const App = () => {
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="App">
+        <NavMate/>
+        <Switch>
+          <Route path="/" exact component={Login}/>
+          <Route path="/login" component={Login}/>
+          <Route path="/ghost" exact component={Ghost}/>
+          <Route path="/ghost2" exact component={() => <Ghost2 title={'mimimi'}/>}/>
+        </Switch>
+        <Footer/>
+      </div>
+    </Router>
+
   );
 }
 
