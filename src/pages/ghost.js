@@ -41,6 +41,12 @@ const Ghost = ({classes}) => {
 
   const handleReserve = e => {
     setReserve(true)
+    // to-do
+    console.log(ghostLock)
+  }
+
+  const handleRelease = e => {
+    // to-do
   }
 
   const handleDryrun = e => {
@@ -98,6 +104,7 @@ const Ghost = ({classes}) => {
               <Paper className={classes.paper}>
                 <TextField className={classes.textField} id="ghostHost" label="Ghost Host" name="ghosthost" onChange={handleChange}/><br/>
                 <Button className={classes.button} color="primary" type='submit' onClick={handleReserve}>Reserve Host</Button>
+                <Button className={classes.button} color="secondary" type='submit' onClick={handleRelease}>Release Host</Button>
               </Paper>
             </Paper>
           </Grid>
