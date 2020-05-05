@@ -18,6 +18,7 @@ const Ghost = ({classes}) => {
   const history = useHistory();
 
   const [ghostLock, setGhostLock] = useState([]);
+  const [grpcPort, setGrpcPort] = useState('');
 
   useEffect(() => {
     if(!login.isLogged)history.push('/login')
@@ -44,7 +45,7 @@ const Ghost = ({classes}) => {
   const [cutoverResult, setCutoverResult] = useState('');
 
   const handleReserve = e => {
-    requireLock(form, login, setReserve, setGhostLock)
+    requireLock(form, login, setReserve, setGhostLock, setGrpcPort)
   }
 
   const handleRelease = e => {
@@ -53,9 +54,9 @@ const Ghost = ({classes}) => {
 
   const handleDryrun = e => {
     if(isReserved){
-      fetchGrpcDiskSize(setDiskSize, form)
-      fetchGrpcTableDefinition(setTableDefinition, form)
-      fetchGrpcGhostDryrun(setDryrunResult, form)
+      fetchGrpcDiskSize(setDiskSize, form, grpcPort)
+      fetchGrpcTableDefinition(setTableDefinition, form, grpcPort)
+      fetchGrpcGhostDryrun(setDryrunResult, form, grpcPort)
       setForm(prevForm => {
         return {...form, dryrun: true};
       })
@@ -65,15 +66,15 @@ const Ghost = ({classes}) => {
   }
 
   const handleExecute = e => {
-    form.dryrun ? fetchGrpcGhostExecute(setExecuteResult, form) : alert('Dry run first')
+    form.dryrun ? fetchGrpcGhostExecute(setExecuteResult, form, grpcPort) : alert('Dry run first')
   }
 
   const handleInteractive = e => {
-    fetchGrpcGhostInteractive(setInteractiveResult, form)
+    fetchGrpcGhostInteractive(setInteractiveResult, form, grpcPort)
   }
 
   const handleCutover = e => {
-    fetchGrpcGhostCutover(setCutoverResult, form) 
+    fetchGrpcGhostCutover(setCutoverResult, form, grpcPort) 
   }
 
   const handleSubmit = (e) => {

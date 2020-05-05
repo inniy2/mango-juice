@@ -3,7 +3,8 @@ import { ghostClient } from '../generated/ghost_grpc_web_pb';
 import { diskRequest, definitionRequest, ghostRequest, interactiveRequest, APIResponse, Empty } from '../generated/ghost_pb';
 import { signin } from '../actions';
 
-const grpcPort = '10000'
+
+const enovyUrl = 'localhost'
 const springUrl = 'http://localhost:8080'
 
 export const fetchUser = async (form, open, setRender, history, dispatch) => {
@@ -55,7 +56,7 @@ export const fetchLock = async ( setRender ) => {
     };
 };
 
-export const requireLock = async ( form, login, setResetReservender, setGhostLock ) => {
+export const requireLock = async ( form, login, setResetReservender, setGhostLock, setGrpcPort ) => {
   const response = await fetch(springUrl+'/api/requireLock',{
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -81,6 +82,21 @@ export const requireLock = async ( form, login, setResetReservender, setGhostLoc
     console.log('getLock')
     console.log(data)
     setGhostLock(data)
+
+  }catch(error){
+    alert("Message is not defined.")
+  };
+
+  const responseGetGrpcPort = await fetch(springUrl+'/api/getGrpcPort',{
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ghost_host: form.ghosthost, user_name: login.user_name })
+  })
+  try{
+    const data = await responseGetGrpcPort.json();
+    console.log('getGrpcPort')
+    console.log(data.envoy_port)
+    setGrpcPort(data.envoy_port)
 
   }catch(error){
     alert("Message is not defined.")
@@ -124,8 +140,8 @@ export const releaseLock = async ( form, login, setResetReservender, setGhostLoc
 
 
 
-export const fetchGrpcDiskSize = async( setRender, form) => {
-    const ghostclient_ = new ghostClient("http://"+form.ghosthost+":"+grpcPort, null, null);
+export const fetchGrpcDiskSize = async( setRender, form, grpcPort) => {
+    const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
     const diskRequest_ = new diskRequest();
     diskRequest_.setDir(form.dir);
     try{
@@ -138,8 +154,8 @@ export const fetchGrpcDiskSize = async( setRender, form) => {
 };
 
 
-export const fetchGrpcTableDefinition = async( setRender, form) => {
-    const ghostclient_ = new ghostClient("http://"+form.ghosthost+":"+grpcPort, null, null);
+export const fetchGrpcTableDefinition = async( setRender, form, grpcPort) => {
+    const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
     const definitionRequest_ = new definitionRequest()
     definitionRequest_.setSchemaname(form.schemaname);
     definitionRequest_.setTablename(form.tablename);
@@ -149,8 +165,8 @@ export const fetchGrpcTableDefinition = async( setRender, form) => {
   });
 };
 
-export const fetchGrpcGhostDryrun = async( setRender, form) => {
-    const ghostclient_ = new ghostClient("http://"+form.ghosthost+":"+grpcPort, null, null);
+export const fetchGrpcGhostDryrun = async( setRender, form, grpcPort) => {
+    const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
     const ghostRequest_ = new ghostRequest();
     ghostRequest_.setSchemaname(form.schemaname);
     ghostRequest_.setTablename(form.tablename);
@@ -161,8 +177,8 @@ export const fetchGrpcGhostDryrun = async( setRender, form) => {
   });
 };
 
-export const fetchGrpcGhostExecute = async( setRender, form) => {
-    const ghostclient_ = new ghostClient("http://"+form.ghosthost+":"+grpcPort, null, null);
+export const fetchGrpcGhostExecute = async( setRender, form, grpcPort) => {
+    const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
     const ghostRequest_ = new ghostRequest();
     ghostRequest_.setSchemaname(form.schemaname);
     ghostRequest_.setTablename(form.tablename);
@@ -173,8 +189,8 @@ export const fetchGrpcGhostExecute = async( setRender, form) => {
   });
 };
 
-export const fetchGrpcGhostInteractive = async( setRender, form) => {
-    const ghostclient_ = new ghostClient("http://"+form.ghosthost+":"+grpcPort, null, null);
+export const fetchGrpcGhostInteractive = async( setRender, form, grpcPort) => {
+    const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
     const interactiveRequest_ = new interactiveRequest();
     interactiveRequest_.setSchemaname(form.schemaname);
     interactiveRequest_.setTablename(form.tablename);
@@ -185,8 +201,8 @@ export const fetchGrpcGhostInteractive = async( setRender, form) => {
   });
 };
 
-export const fetchGrpcGhostCutover = async( setRender, form ) => {
-    const ghostclient_ = new ghostClient("http://"+form.ghosthost+":"+grpcPort, null, null);
+export const fetchGrpcGhostCutover = async( setRender, form, grpcPort ) => {
+    const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
     const emptyRequest_ = new Empty();
     await ghostclient_.cutover(emptyRequest_,{},( err = grpcweb.Error, APIResponse) => {
         console.log('Grpc cutover err : '+err)
