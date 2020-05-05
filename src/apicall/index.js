@@ -6,7 +6,7 @@ import { signin } from '../actions';
 const grpcPort = '10000'
 const springUrl = 'http://localhost:8080'
 
-export const fetchUser = async (form, open, setRender, history,dispatch) => {
+export const fetchUser = async (form, open, setRender, history, dispatch) => {
     const response = await fetch(springUrl+'/api/getUser',{
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -45,15 +45,84 @@ export const fetchLock = async ( setRender ) => {
     })
     try{
       const data = await response.json();
-      console.log(data.length)
+      console.log('fetchLock')
       if(data.length !== 0 ){
         setRender(data)
       }
 
     }catch(error){
-      alert("No user founded")
+      alert("Message is not defined.")
     };
 };
+
+export const requireLock = async ( form, login, setResetReservender, setGhostLock ) => {
+  const response = await fetch(springUrl+'/api/requireLock',{
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ghost_host: form.ghosthost, user_name: login.user_name })
+  })
+  try{
+    const data = await response.json();
+    console.log('requireLock')
+    console.log(data)
+    setResetReservender(data)
+
+  }catch(error){
+    alert("Message is not defined.")
+  };
+
+  const responseGetLock = await fetch(springUrl+'/api/getLock',{
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ghost_host: form.ghosthost, user_name: login.user_name })
+  })
+  try{
+    const data = await responseGetLock.json();
+    console.log('getLock')
+    console.log(data)
+    setGhostLock(data)
+
+  }catch(error){
+    alert("Message is not defined.")
+  };
+
+};
+
+
+
+export const releaseLock = async ( form, login, setResetReservender, setGhostLock ) => {
+  const response = await fetch(springUrl+'/api/releaseLock',{
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ghost_host: form.ghosthost, user_name: login.user_name })
+  })
+  try{
+    const data = await response.json();
+    console.log('releaseLock')
+    console.log(data)
+    if(setResetReservender && data){setResetReservender(!data)}
+    
+  }catch(error){
+    alert("Message is not defined.")
+  };
+
+  const responseGetLock = await fetch(springUrl+'/api/getLock',{
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ghost_host: form.ghosthost, user_name: login.user_name })
+  })
+  try{
+    const data = await responseGetLock.json();
+    console.log('getLock')
+    console.log(data)
+    setGhostLock(data)
+
+  }catch(error){
+    alert("Message is not defined.")
+  };
+};
+
+
 
 export const fetchGrpcDiskSize = async( setRender, form) => {
     const ghostclient_ = new ghostClient("http://"+form.ghosthost+":"+grpcPort, null, null);

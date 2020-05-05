@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useHistory } from "react-router-dom";
 //import '../App.css';
 import { useSelector } from 'react-redux';
 import { fetchGrpcDiskSize, fetchGrpcTableDefinition, fetchGrpcGhostDryrun, fetchGrpcGhostExecute, fetchGrpcGhostInteractive, fetchGrpcGhostCutover,
-         fetchLock } from '../apicall';
+         fetchLock, requireLock, releaseLock } from '../apicall';
 
 //Styles
 import { withStyles } from '@material-ui/core/styles';
@@ -14,13 +15,16 @@ import Alert from '@material-ui/lab/Alert';
 
 const Ghost = ({classes}) => {
   const login = useSelector(state => state.loginReducer);
+  const history = useHistory();
 
   const [ghostLock, setGhostLock] = useState([]);
 
   useEffect(() => {
+    if(!login.isLogged)history.push('/login')
     fetchLock(setGhostLock)
   },[])
-
+  
+  
   const [form, setForm] = useState({
     ghosthost: '',
     dir: '',
@@ -40,13 +44,11 @@ const Ghost = ({classes}) => {
   const [cutoverResult, setCutoverResult] = useState('');
 
   const handleReserve = e => {
-    setReserve(true)
-    // to-do
-    console.log(ghostLock)
+    requireLock(form, login, setReserve, setGhostLock)
   }
 
   const handleRelease = e => {
-    // to-do
+    releaseLock(form, login, setReserve, setGhostLock)
   }
 
   const handleDryrun = e => {
