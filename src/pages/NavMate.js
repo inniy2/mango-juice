@@ -1,5 +1,8 @@
 import React, { useState, Fragment } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { signout } from '../actions';
+
 
 //Styles
 import { navMateStyles as styles } from '../styles';
@@ -8,6 +11,10 @@ import { Menu, AppBar, Toolbar, Typography, Button, IconButton,MenuItem} from '@
 import MenuIcon from '@material-ui/icons/Menu';
 
 const NavMate = ({classes}) => {
+
+  const login = useSelector(state => state.loginReducer);
+  const history = useHistory();
+  const dispatch = useDispatch();
 
   const [auth, setAuth] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -28,6 +35,11 @@ const NavMate = ({classes}) => {
     setAnchorEl(null);
     name !== undefined ? setTitle(name) : setTitle(title)
   };
+
+  const handleLogout = e => {
+    dispatch(signout());
+    history.push('/login')
+  }
 
   return (
     <div className={classes.root}>
@@ -66,9 +78,8 @@ const NavMate = ({classes}) => {
           <Typography variant="h5" className={classes.title}>
             Mango Juice
           </Typography>
-          <Link className={classes.link} to='/login'> 
-            <Button  color="inherit" >Login</Button> 
-          </Link>
+          {login.isLogged? <Button  color="inherit" onClick={handleLogout}>Logout</Button>: ''}
+
         </Toolbar>
       </AppBar>
     </div>

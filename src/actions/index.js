@@ -21,4 +21,10 @@ export const signin = (username) => {
     };
 };
 
+export const signout = () => {
+    return {
+        type: 'SIGN_OUT'
+    };
+};
+
 

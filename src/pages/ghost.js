@@ -24,8 +24,8 @@ const Ghost = ({classes}) => {
     if(!login.isLogged)history.push('/login')
     fetchLock(setGhostLock)
   },[])
-  
-  
+
+
   const [form, setForm] = useState({
     ghosthost: '',
     dir: '',
@@ -74,7 +74,15 @@ const Ghost = ({classes}) => {
   }
 
   const handleCutover = e => {
-    fetchGrpcGhostCutover(setCutoverResult, form, grpcPort) 
+    fetchGrpcGhostCutover(setCutoverResult, form, grpcPort)
+  }
+
+  const handleAbort = e => {
+    //to-do
+  }
+
+  const handleCleanup = e => {
+    //to-do
   }
 
   const handleSubmit = (e) => {
@@ -132,6 +140,8 @@ const Ghost = ({classes}) => {
               <TextField className={classes.textField} id="ghostcommand" label="Ghost Command" name="ghostcommand" onChange={handleChange}/><br/>
               <Button className={classes.button} color="primary" type='submit' onClick={handleInteractive}>Interactive</Button>
               <Button className={classes.button} color="secondary" type='submit' onClick={handleCutover}>Cut Over</Button>
+              <Button className={classes.button} color="secondary" type='submit' onClick={handleAbort}>Abort</Button>
+              <Button className={classes.button} color="secondary" type='submit' onClick={handleCleanup}>Clean Up</Button>
             </Paper>
           </Grid>
           {/*
@@ -145,7 +155,7 @@ const Ghost = ({classes}) => {
                 }else {
                   return <span key={i}>{item}<br/></span>
                 }
-              })}  
+              })}
             </Paper>
           </Grid>
           {/*
@@ -175,16 +185,16 @@ const Ghost = ({classes}) => {
             })}
             </Paper>
           </Grid>
-          
+
 
         </Grid>
 
-      
-      { form.ghosthost !== '' ? form.ghosthost : '' }      
+
+      { form.ghosthost !== '' ? form.ghosthost : '' }
       { executeResult !== '' ? executeResult : '' }
       { cutoverResult !== '' ? cutoverResult : '' }
 
-        
+
       </form>
     </div>
   );
