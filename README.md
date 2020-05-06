@@ -66,3 +66,68 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/de
 ### `npm run build` fails to minify
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+
+### How to build
+
+npm install -g create-react-app
+
+npx create-react-app mango-juice
+
+npm install react-router-dom
+
+npm install redux react-redux
+
+npm install @material-ui/core
+
+npm install typeface-roboto --save
+
+npm install @material-ui/lab
+
+
+
+
+### Install protoc in ubuntu
+
+# Make dependency
+https://github.com/grpc/grpc-web/tree/master/packages/grpc-web
+npm i grpc-web
+
+
+# Download and install protoc
+http://google.github.io/proto-lens/installing-protoc.html
+
+PROTOC_ZIP=protoc-3.11.4-linux-x86_64.zip
+
+curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.7.1/$PROTOC_ZIP
+
+sudo unzip -o $PROTOC_ZIP -d /usr/local bin/protoc
+sudo unzip -o $PROTOC_ZIP -d /usr/local 'include/*'
+
+rm -f $PROTOC_ZIP
+
+# Download and install protoc-gen-grpc-web
+https://github.com/grpc/grpc-web/releases
+
+wget https://github.com/grpc/grpc-web/releases/download/1.0.7/protoc-gen-grpc-web-1.0.7-linux-x86_64
+
+sudo mv ~/Downloads/protoc-gen-grpc-web-1.0.7-linux-x86_64 \
+    /usr/local/bin/protoc-gen-grpc-web
+sudo chmod +x /usr/local/bin/protoc-gen-grpc-web
+
+### Build grpc stub
+
+cd ~/git/mango-juice/src
+export DIR=~/git/grpc-ghost/proto
+export PROTO=ghost.proto
+
+mkdir generated
+
+protoc -I=$DIR $PROTO \
+--js_out=import_style=commonjs:generated \
+--grpc-web_out=import_style=commonjs,mode=grpcwebtext:generated
+
+### add Redux DevTools in Chrome
+add to source https://github.com/reduxjs/redux-devtools
+
+# add ghost_pb.js
+/* eslint-disable */

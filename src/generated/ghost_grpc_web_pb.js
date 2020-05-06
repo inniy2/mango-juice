@@ -308,6 +308,166 @@ proto.ghostPromiseClient.prototype.cutover =
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
+ *   !proto.Empty,
+ *   !proto.APIResponse>}
+ */
+const methodDescriptor_ghost_putpanicflag = new grpc.web.MethodDescriptor(
+  '/ghost/putpanicflag',
+  grpc.web.MethodType.UNARY,
+  proto.Empty,
+  proto.APIResponse,
+  /**
+   * @param {!proto.Empty} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.APIResponse.deserializeBinary
+);
+
+
+/**
+ * @const
+ * @type {!grpc.web.AbstractClientBase.MethodInfo<
+ *   !proto.Empty,
+ *   !proto.APIResponse>}
+ */
+const methodInfo_ghost_putpanicflag = new grpc.web.AbstractClientBase.MethodInfo(
+  proto.APIResponse,
+  /**
+   * @param {!proto.Empty} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.APIResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.Empty} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.Error, ?proto.APIResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.APIResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.ghostClient.prototype.putpanicflag =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/ghost/putpanicflag',
+      request,
+      metadata || {},
+      methodDescriptor_ghost_putpanicflag,
+      callback);
+};
+
+
+/**
+ * @param {!proto.Empty} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.APIResponse>}
+ *     A native promise that resolves to the response
+ */
+proto.ghostPromiseClient.prototype.putpanicflag =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/ghost/putpanicflag',
+      request,
+      metadata || {},
+      methodDescriptor_ghost_putpanicflag);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.Empty,
+ *   !proto.APIResponse>}
+ */
+const methodDescriptor_ghost_cleanup = new grpc.web.MethodDescriptor(
+  '/ghost/cleanup',
+  grpc.web.MethodType.UNARY,
+  proto.Empty,
+  proto.APIResponse,
+  /**
+   * @param {!proto.Empty} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.APIResponse.deserializeBinary
+);
+
+
+/**
+ * @const
+ * @type {!grpc.web.AbstractClientBase.MethodInfo<
+ *   !proto.Empty,
+ *   !proto.APIResponse>}
+ */
+const methodInfo_ghost_cleanup = new grpc.web.AbstractClientBase.MethodInfo(
+  proto.APIResponse,
+  /**
+   * @param {!proto.Empty} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.APIResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.Empty} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.Error, ?proto.APIResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.APIResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.ghostClient.prototype.cleanup =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/ghost/cleanup',
+      request,
+      metadata || {},
+      methodDescriptor_ghost_cleanup,
+      callback);
+};
+
+
+/**
+ * @param {!proto.Empty} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.APIResponse>}
+ *     A native promise that resolves to the response
+ */
+proto.ghostPromiseClient.prototype.cleanup =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/ghost/cleanup',
+      request,
+      metadata || {},
+      methodDescriptor_ghost_cleanup);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
  *   !proto.ghostRequest,
  *   !proto.APIResponse>}
  */
