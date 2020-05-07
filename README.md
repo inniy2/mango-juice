@@ -67,6 +67,13 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/de
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
 
+
+### Install nodejs & npm in ubuntu
+https://github.com/nodesource/distributions#debinstall
+
+curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
 ### How to build
 
 npm install -g create-react-app
@@ -96,9 +103,16 @@ npm i grpc-web
 # Download and install protoc
 http://google.github.io/proto-lens/installing-protoc.html
 
+
 PROTOC_ZIP=protoc-3.11.4-linux-x86_64.zip
 
 curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.7.1/$PROTOC_ZIP
+
+
+https://github.com/protocolbuffers/protobuf/releases
+
+wget https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/$PROTOC_ZIP
+
 
 sudo unzip -o $PROTOC_ZIP -d /usr/local bin/protoc
 sudo unzip -o $PROTOC_ZIP -d /usr/local 'include/*'

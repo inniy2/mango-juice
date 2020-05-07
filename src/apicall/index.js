@@ -7,6 +7,7 @@ import { signin } from '../actions';
 const enovyUrl = 'localhost'
 const springUrl = 'http://localhost:8080'
 
+
 export const fetchUser = async (form, open, setRender, history, dispatch) => {
     const response = await fetch(springUrl+'/api/getUser',{
       method: 'POST',
@@ -52,7 +53,7 @@ export const fetchLock = async ( setRender ) => {
       }
 
     }catch(error){
-      alert("Message is not defined.")
+      alert("FetchLock : Message is not defined.")
     };
 };
 
@@ -69,7 +70,7 @@ export const requireLock = async ( form, login, setResetReservender, setGhostLoc
     setResetReservender(data)
 
   }catch(error){
-    alert("Message is not defined.")
+    alert("requireLock 1: Message is not defined.")
   };
 
   const responseGetLock = await fetch(springUrl+'/api/getLock',{
@@ -84,7 +85,7 @@ export const requireLock = async ( form, login, setResetReservender, setGhostLoc
     setGhostLock(data)
 
   }catch(error){
-    alert("Message is not defined.")
+    alert("requireLock 2 : Message is not defined.")
   };
 
   const responseGetGrpcPort = await fetch(springUrl+'/api/getGrpcPort',{
@@ -99,11 +100,10 @@ export const requireLock = async ( form, login, setResetReservender, setGhostLoc
     setGrpcPort(data.envoy_port)
 
   }catch(error){
-    alert("Message is not defined.")
+    alert("requireLock error 3 : Check Ghost Host.")
   };
 
 };
-
 
 
 export const releaseLock = async ( form, login, setResetReservender, setGhostLock ) => {
@@ -119,7 +119,7 @@ export const releaseLock = async ( form, login, setResetReservender, setGhostLoc
     if(setResetReservender && data){setResetReservender(!data)}
     
   }catch(error){
-    alert("Message is not defined.")
+    alert("releaseLock : Message is not defined.")
   };
 
   const responseGetLock = await fetch(springUrl+'/api/getLock',{
@@ -134,10 +134,18 @@ export const releaseLock = async ( form, login, setResetReservender, setGhostLoc
     setGhostLock(data)
 
   }catch(error){
-    alert("Message is not defined.")
+    alert("releaseLock 1 : Message is not defined.")
   };
 };
 
+
+export const updatePassword = prop => {
+  //form.new_password === form.confirm_password ? setOpen(false) : setOpen(true)
+  console.log(prop.form)
+  console.log(prop.login)
+  console.log(prop.open)
+  
+}
 
 
 export const fetchGrpcDiskSize = async( setRender, form, grpcPort) => {

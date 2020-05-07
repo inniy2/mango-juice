@@ -35,25 +35,29 @@ const Login = ({classes}) => {
     if (reason === 'clickaway') {
       return;
     }
-    setOpen(privOpen => {
-      return {...open,
+    setOpen( prop => {
+      return {...prop, 
         isOpen: !open.isOpen,
       }
     });
+
   };
 
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const name = e.target.name
     const value = e.target.value
-    console.log(value)
-    setForm(prevForm => {
-      return {...form, [name]: value};
-    })
+    setForm(prop => {
+      return {...prop, 
+        [name]: value
+      }
+    });
   };
+  
 
   const handleSubmit = event => {
     event.preventDefault()
+    console.log(form)
     fetchUser(form, open, setOpen, history, dispatch)
   };
 
@@ -69,12 +73,13 @@ const Login = ({classes}) => {
               <TextField className={classes.textfield} id="password" label="Password" type='password' name='password' onChange={handleChange}/><br/>
               <Button className={classes.button} color="primary" type='submit'>Login</Button>
             </form>
+            <Snackbar open={open.isOpen} autoHideDuration={6000} onClose={handleClose}>
+              <Alert onClose={handleClose} severity={open.severity}>{open.message}</Alert>
+            </Snackbar>  
           </Paper>
         </Grid>
       </Grid>
-      <Snackbar open={open.isOpen} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity={open.severity}>{open.message}</Alert>
-      </Snackbar>
+
     </div> 
   );
 }

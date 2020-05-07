@@ -72,7 +72,7 @@ const NavMate = ({classes}) => {
               >
                 <MenuItem onClick={handleClose} component={Link} to='/login' name='Login'>Login</MenuItem>
                 <MenuItem onClick={handleClose} component={Link} to='/ghost' name='Ghost'>Ghost</MenuItem>
-                <MenuItem onClick={handleClose} component={Link} to='/ghost2' name='Ghost2'>Ghost2</MenuItem>
+                <MenuItem onClick={handleClose} component={Link} to='/mypage' name='MyPage'>My Page</MenuItem>
               </Menu>
           </Fragment>
           <Typography variant="h5" className={classes.title}>
