@@ -35,9 +35,11 @@ const loginReducer = ( state = { 'isLogged': false, 'user_name': ''}, action) =>
 };
 
 
+
 const rootReducer = combineReducers({
     counterReducer,
     loginReducer,
+
 });
 
 export default rootReducer;

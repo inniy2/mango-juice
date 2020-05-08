@@ -34,6 +34,14 @@ export const ghostStyles = theme => ({
       textAlign: 'left',
       color: theme.palette.text.secondary
     },
+    modal: {
+      position: 'absolute',
+      width: 400,
+      backgroundColor: theme.palette.background.paper,
+      border: '2px solid #000',
+      boxShadow: theme.shadows[5],
+      padding: theme.spacing(2, 4, 3),
+    },
   });
 
 export const navMateStyles = theme => ({
@@ -81,3 +89,14 @@ export const loginStyles = theme => ({
       marginBottom: 300,
     },
   });
+
+export const modalStyles = theme => ({
+  paper: {
+    position: 'absolute',
+    width: 400,
+    backgroundColor: theme.palette.background.paper,
+    border: '2px solid #000',
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+  },
+});

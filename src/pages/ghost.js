@@ -1,24 +1,31 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { useHistory } from "react-router-dom";
 //import '../App.css';
-import { useSelector } from 'react-redux';
-import { fetchGrpcDiskSize, fetchGrpcTableDefinition, fetchGrpcGhostDryrun, fetchGrpcGhostExecute, fetchGrpcGhostInteractive, fetchGrpcGhostCutover,
+
+import { fetchGrpcDiskSize, fetchGrpcTableDefinition, fetchGrpcGhostDryrun, fetchGrpcGhostExecute, fetchGrpcGhostInteractive, fetchGrpcGhostCutover, confirmClick, 
          fetchLock, requireLock, releaseLock } from '../apicall';
 
 //Styles
 import { withStyles } from '@material-ui/core/styles';
 import { ghostStyles as styles } from '../styles'
-import { Paper, Grid, TextField, Button, Snackbar } from '@material-ui/core';
+import { Paper, Grid, TextField, Button, Modal, DialogContent, Collapse, IconButton, Snackbar } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
 
 //Alerts
 import Alert from '@material-ui/lab/Alert';
 
 const Ghost = ({classes}) => {
   const login = useSelector(state => state.loginReducer);
+  
+  const dispatch = useDispatch();
   const history = useHistory();
 
   const [ghostLock, setGhostLock] = useState([]);
   const [grpcPort, setGrpcPort] = useState('');
+  
+  const [modal, setModalOpen] = useState({ isOpen: false, handlerName: '', message: ''})
+  const [alert, setAlertOpen] = useState({ isOpen: false, handlerName: '', message: ''})
 
   useEffect(() => {
     !login.isLogged? history.push('/login') : fetchLock(setGhostLock)
@@ -43,8 +50,10 @@ const Ghost = ({classes}) => {
   const [interactiveResult, setInteractiveResult] = useState('');
   const [cutoverResult, setCutoverResult] = useState('');
 
+  
+
   const handleReserve = e => {
-    requireLock(form, login, setReserve, setGhostLock, setGrpcPort)
+    requireLock({form, login, setReserve, setGhostLock, setGrpcPort, setAlertOpen})
   }
 
   const handleRelease = e => {
@@ -60,12 +69,12 @@ const Ghost = ({classes}) => {
         return {...form, dryrun: true};
       })
     }else{
-      alert('Reserve the host first')
+      setAlertOpen(prop => { return  {...prop, isOpen : true, handlerName: "handleDryrun" , message: "Reserve the host first"}})
     }
   }
 
   const handleExecute = e => {
-    form.dryrun ? fetchGrpcGhostExecute(setExecuteResult, form, grpcPort) : alert('Dry run first')
+    form.dryrun ? setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "handleExecute", message: 'You request to ALTER.'}}) : alert('Run test first before execute')
   }
 
   const handleInteractive = e => {
@@ -90,12 +99,22 @@ const Ghost = ({classes}) => {
 
 
   const handleChange = (e) => {
-    const name = e.target.name
-    const value = e.target.value
-    setForm(prevForm => {
-      return {...form, [name]: value};
+    const { name, value }  = e.target
+    setForm(prop => {
+      return {...prop, [name]: value};
     })
   };
+
+
+
+  const handleClose = e => {
+    setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "", message: ''}})
+  }
+
+  const handleProceed = e => {
+    setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen,}})
+    if (modal.handlerName === "handleExecute" ) { fetchGrpcGhostExecute({setExecuteResult, form, grpcPort, modal, dispatch}) }
+  }
 
 
   return (
@@ -109,8 +128,13 @@ const Ghost = ({classes}) => {
             <Paper className={classes.paper}>
               { login.isLogged ? '' : <Alert severity="warning"> Login Required</Alert>}
               {ghostLock.map((item, i) => {
-                return <Alert severity="warning" key={i}>{item.ghost_host} is {item.lock_status} by {item.user_name} </Alert>
+                return <Alert severity="info" key={i}>{item.ghost_host} is {item.lock_status} by {item.user_name} </Alert>
               })}
+              <Collapse in={alert.isOpen}>
+                <Alert severity="warning" action={ <IconButton aria-label="close" color="inherit" size="small" onClick={() => {setAlertOpen(prop =>{return{...prop, isOpen: false,}});}}> <CloseIcon fontSize="inherit" /> </IconButton>}>
+                  {alert.message}
+                </Alert>
+              </Collapse>
               <Paper className={classes.paper}>
                 <TextField className={classes.textField} id="ghostHost" label="Ghost Host" name="ghosthost" onChange={handleChange}/><br/>
                 <Button className={classes.button} color="primary" type='submit' onClick={handleReserve}>Reserve Host</Button>
@@ -128,7 +152,7 @@ const Ghost = ({classes}) => {
               <TextField className={classes.textField} id="tablename" label="Table Name" name="tablename" onChange={handleChange}/><br/>
               <TextField className={classes.textField} id="statement" label="Statement" name="statement" onChange={handleChange}/><br/>
               <Button className={classes.button} color="primary" type='submit' onClick={handleDryrun}>Test</Button>
-              <Button className={classes.button} color="secondary" type='submit' onClick={handleExecute}>Alter</Button>
+              <Button className={classes.button} color="secondary" type='submit' name="execute" onClick={handleExecute}>Alter</Button>
             </Paper>
           </Grid>
           {/*
@@ -193,8 +217,17 @@ const Ghost = ({classes}) => {
       { executeResult !== '' ? executeResult : '' }
       { cutoverResult !== '' ? cutoverResult : '' }
 
-
       </form>
+      <Modal open={modal.isOpen} aria-labelledby="simple-modal-title" aria-describedby="simple-modal-description">
+        <DialogContent>
+        <div className={classes.modal}>
+          <p id="simple-modal-title"> {modal.message}</p>
+          <p id="simple-modal-description"> Are you sure?</p>
+          <Button className={classes.button} color="primary"   type='submit' onClick={handleClose}>  Cancel </Button>
+          <Button className={classes.button} color="secondary" type='submit' onClick={handleProceed}>Proceed</Button>
+        </div>
+        </DialogContent>
+      </Modal>
     </div>
   );
 

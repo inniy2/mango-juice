@@ -1,7 +1,7 @@
 import * as grpcweb from 'grpc-web';
 import { ghostClient } from '../generated/ghost_grpc_web_pb';
 import { diskRequest, definitionRequest, ghostRequest, interactiveRequest, APIResponse, Empty } from '../generated/ghost_pb';
-import { signin } from '../actions';
+import { signin  } from '../actions';
 
 
 const enovyUrl = 'localhost'
@@ -29,6 +29,7 @@ export const fetchUser = async (form, open, setRender, history, dispatch) => {
         });
       }
     }catch(error){
+      console.log("fetchUser catch 1 : "+ error)
       setRender(privOpen => {
         return {...open,
           isOpen: !open.isOpen,
@@ -52,11 +53,12 @@ export const fetchLock = async ( setRender ) => {
       }
 
     }catch(error){
-      alert("FetchLock : Message is not defined.")
+      console.log("fetchLock catch 1 : "+ error)
     };
 };
 
-export const requireLock = async ( form, login, setResetReservender, setGhostLock, setGrpcPort ) => {
+export const requireLock = async prop => {
+  const { form, login, setReserve, setGhostLock, setGrpcPort, setAlertOpen } = prop
   const response = await fetch(springUrl+'/api/requireLock',{
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -64,12 +66,11 @@ export const requireLock = async ( form, login, setResetReservender, setGhostLoc
   });
   try{
     const data = await response.json();
-    console.log('requireLock')
-    console.log(data)
-    setResetReservender(data)
-
+    setReserve(data)
   }catch(error){
-    alert("requireLock 1: Message is not defined.")
+    //alert("requireLock 1: Message is not defined.")
+    //setAlertOpen(prop => { return  {...prop, isOpen : true, handlerName: "requireLock" , message: "1. Message is not defined"}})
+    console.log("requireLock catch 1 : "+ error)
   };
 
   const responseGetLock = await fetch(springUrl+'/api/getLock',{
@@ -79,12 +80,12 @@ export const requireLock = async ( form, login, setResetReservender, setGhostLoc
   });
   try{
     const data = await responseGetLock.json();
-    console.log('getLock')
-    console.log(data)
     setGhostLock(data)
 
   }catch(error){
-    alert("requireLock 2 : Message is not defined.")
+    //alert("requireLock 2 : Message is not defined.")
+    //setAlertOpen(prop => { return  {...prop, isOpen : true, handlerName: "requireLock" , message: "2. Message is not defined"}})
+    console.log("requireLock catch 2 : "+ error)
   };
 
   const responseGetGrpcPort = await fetch(springUrl+'/api/getGrpcPort',{
@@ -94,12 +95,12 @@ export const requireLock = async ( form, login, setResetReservender, setGhostLoc
   });
   try{
     const data = await responseGetGrpcPort.json();
-    console.log('getGrpcPort')
-    console.log(data.envoy_port)
     setGrpcPort(data.envoy_port)
 
   }catch(error){
-    alert("requireLock error 3 : Check Ghost Host.")
+    //alert("requireLock error 3 : Check Ghost Host.")
+    console.log("requireLock catch 3 : "+ error)
+    setAlertOpen(prop => { return  {...prop, isOpen : true, handlerName: "requireLock" , message: "Check Ghost Host"}})
   };
 
 };
@@ -118,7 +119,7 @@ export const releaseLock = async ( form, login, setResetReservender, setGhostLoc
     if(setResetReservender && data){setResetReservender(!data)}
     
   }catch(error){
-    alert("releaseLock : Message is not defined.")
+    console.log("releaseLock catch 1 : "+ error)
   };
 
   const responseGetLock = await fetch(springUrl+'/api/getLock',{
@@ -133,7 +134,7 @@ export const releaseLock = async ( form, login, setResetReservender, setGhostLoc
     setGhostLock(data)
 
   }catch(error){
-    alert("releaseLock 1 : Message is not defined.")
+    console.log("releaseLock catch 2 : "+ error)
   };
 };
 
@@ -155,7 +156,7 @@ export const updatePassword = async prop => {
       data === 1 ? setOpen(prop =>{return {...prop, isOpen: true, severity : "info", message: "Password update sucessful."}}) :
         setOpen(prop =>{return {...prop, isOpen: true, severity : "warning", message: "Password update Failed."}})
     }catch(error){
-      alert("updatePassword : Message is not defined.")
+      console.log("updatePassword catch 1 : "+ error)
     };    
   }
 };
@@ -171,7 +172,7 @@ export const fetchGrpcDiskSize = async( setRender, form, grpcPort) => {
       APIResponse !== null ? setRender(APIResponse.getResponsemessage()) : setRender('Disk size is not available')
     });
   }catch(e){
-    alert("fetchGrpcDiskSize : Message is not defined.")
+    console.log("fetchGrpcDiskSize catch 1 : "+ e)
   }
 };
 
@@ -199,7 +200,10 @@ export const fetchGrpcGhostDryrun = async( setRender, form, grpcPort) => {
   });
 };
 
-export const fetchGrpcGhostExecute = async( setRender, form, grpcPort) => {
+
+//alter
+export const fetchGrpcGhostExecute = async prop => {
+  const {setExecuteResult, form, grpcPort } = prop
   const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
   const ghostRequest_ = new ghostRequest();
   ghostRequest_.setSchemaname(form.schemaname);
@@ -207,7 +211,7 @@ export const fetchGrpcGhostExecute = async( setRender, form, grpcPort) => {
   ghostRequest_.setStatement(form.statement);
   await ghostclient_.executeNohup(ghostRequest_,{},( err = grpcweb.Error, APIResponse) => {
       console.log('Grpc execute err : '+err)
-      APIResponse !== null ? setRender(APIResponse.getResponsemessage()) : setRender('Execute is not available')
+      APIResponse !== null ? setExecuteResult(APIResponse.getResponsemessage()) : setExecuteResult('Execute is not available')
   });
 };
 
