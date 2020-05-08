@@ -45,8 +45,7 @@ const Login = ({classes}) => {
 
 
   const handleChange = e => {
-    const name = e.target.name
-    const value = e.target.value
+    const { name, value } = e.target
     setForm(prop => {
       return {...prop, 
         [name]: value
@@ -55,9 +54,8 @@ const Login = ({classes}) => {
   };
   
 
-  const handleSubmit = event => {
-    event.preventDefault()
-    console.log(form)
+  const handleSubmit = e => {
+    e.preventDefault()
     fetchUser(form, open, setOpen, history, dispatch)
   };
 

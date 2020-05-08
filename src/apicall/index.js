@@ -13,7 +13,7 @@ export const fetchUser = async (form, open, setRender, history, dispatch) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_name: form.username })
-    })
+    });
     try{
       const data = await response.json();
       if (data.password === form.password) {
@@ -44,10 +44,9 @@ export const fetchLock = async ( setRender ) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({})
-    })
+    });
     try{
       const data = await response.json();
-      console.log('fetchLock')
       if(data.length !== 0 ){
         setRender(data)
       }
@@ -62,7 +61,7 @@ export const requireLock = async ( form, login, setResetReservender, setGhostLoc
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ghost_host: form.ghosthost, user_name: login.user_name })
-  })
+  });
   try{
     const data = await response.json();
     console.log('requireLock')
@@ -77,7 +76,7 @@ export const requireLock = async ( form, login, setResetReservender, setGhostLoc
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ghost_host: form.ghosthost, user_name: login.user_name })
-  })
+  });
   try{
     const data = await responseGetLock.json();
     console.log('getLock')
@@ -92,7 +91,7 @@ export const requireLock = async ( form, login, setResetReservender, setGhostLoc
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ghost_host: form.ghosthost, user_name: login.user_name })
-  })
+  });
   try{
     const data = await responseGetGrpcPort.json();
     console.log('getGrpcPort')
@@ -111,7 +110,7 @@ export const releaseLock = async ( form, login, setResetReservender, setGhostLoc
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ghost_host: form.ghosthost, user_name: login.user_name })
-  })
+  });
   try{
     const data = await response.json();
     console.log('releaseLock')
@@ -126,7 +125,7 @@ export const releaseLock = async ( form, login, setResetReservender, setGhostLoc
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ghost_host: form.ghosthost, user_name: login.user_name })
-  })
+  });
   try{
     const data = await responseGetLock.json();
     console.log('getLock')
@@ -139,81 +138,96 @@ export const releaseLock = async ( form, login, setResetReservender, setGhostLoc
 };
 
 
-export const updatePassword = prop => {
-  //form.new_password === form.confirm_password ? setOpen(false) : setOpen(true)
-  console.log(prop.form)
-  console.log(prop.login)
-  console.log(prop.open)
-  
-}
+
+
+export const updatePassword = async prop => {
+  const { form, login, setOpen } = prop
+  if (form.new_password !== form.confirm_password) { 
+    setOpen(prop =>{return {...prop, isOpen: true, severity : "warning", message : "Please type same password in confirm password"}}) 
+  }else {
+    const response = await fetch(springUrl+'/api/updatePassword',{
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_name: login.user_name, password : form.password, new_password : form.new_password })
+    })
+    try{
+      const data = await response.json();
+      data === 1 ? setOpen(prop =>{return {...prop, isOpen: true, severity : "info", message: "Password update sucessful."}}) :
+        setOpen(prop =>{return {...prop, isOpen: true, severity : "warning", message: "Password update Failed."}})
+    }catch(error){
+      alert("updatePassword : Message is not defined.")
+    };    
+  }
+};
 
 
 export const fetchGrpcDiskSize = async( setRender, form, grpcPort) => {
-    const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
-    const diskRequest_ = new diskRequest();
-    diskRequest_.setDir(form.dir);
-    try{
-      await ghostclient_.diskcheck(diskRequest_,{},( err = grpcweb.Error, APIResponse) => {
-        console.log('Grpc disk size error : '+err)
-        APIResponse !== null ? setRender(APIResponse.getResponsemessage()) : setRender('Disk size is not available')
-      });
-    }catch(e){
-    }
+  const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
+  const diskRequest_ = new diskRequest();
+  diskRequest_.setDir(form.dir);
+  try{
+    await ghostclient_.diskcheck(diskRequest_,{},( err = grpcweb.Error, APIResponse) => {
+      console.log('Grpc disk size error : '+err)
+      APIResponse !== null ? setRender(APIResponse.getResponsemessage()) : setRender('Disk size is not available')
+    });
+  }catch(e){
+    alert("fetchGrpcDiskSize : Message is not defined.")
+  }
 };
 
 
 export const fetchGrpcTableDefinition = async( setRender, form, grpcPort) => {
-    const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
-    const definitionRequest_ = new definitionRequest()
-    definitionRequest_.setSchemaname(form.schemaname);
-    definitionRequest_.setTablename(form.tablename);
-    await ghostclient_.checkdefinition(definitionRequest_,{},( err = grpcweb.Error, APIResponse) => {
-        console.log('Grpc table definition error : '+err)
-        APIResponse !== null ? setRender(APIResponse.getResponsemessage().split("\n")) : setRender(['Table definition is not available'])
+  const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
+  const definitionRequest_ = new definitionRequest()
+  definitionRequest_.setSchemaname(form.schemaname);
+  definitionRequest_.setTablename(form.tablename);
+  await ghostclient_.checkdefinition(definitionRequest_,{},( err = grpcweb.Error, APIResponse) => {
+      console.log('Grpc table definition error : '+err)
+      APIResponse !== null ? setRender(APIResponse.getResponsemessage().split("\n")) : setRender(['Table definition is not available'])
   });
 };
 
 export const fetchGrpcGhostDryrun = async( setRender, form, grpcPort) => {
-    const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
-    const ghostRequest_ = new ghostRequest();
-    ghostRequest_.setSchemaname(form.schemaname);
-    ghostRequest_.setTablename(form.tablename);
-    ghostRequest_.setStatement(form.statement);
-    await ghostclient_.dryrun(ghostRequest_,{},( err = grpcweb.Error, APIResponse) => {
-        console.log('Grpc dryrun err : '+err)
-        APIResponse !== null ? setRender(APIResponse.getResponsemessage().split("\n")) : setRender(['Dry Run is not available'])
+  const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
+  const ghostRequest_ = new ghostRequest();
+  ghostRequest_.setSchemaname(form.schemaname);
+  ghostRequest_.setTablename(form.tablename);
+  ghostRequest_.setStatement(form.statement);
+  await ghostclient_.dryrun(ghostRequest_,{},( err = grpcweb.Error, APIResponse) => {
+      console.log('Grpc dryrun err : '+err)
+      APIResponse !== null ? setRender(APIResponse.getResponsemessage().split("\n")) : setRender(['Dry Run is not available'])
   });
 };
 
 export const fetchGrpcGhostExecute = async( setRender, form, grpcPort) => {
-    const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
-    const ghostRequest_ = new ghostRequest();
-    ghostRequest_.setSchemaname(form.schemaname);
-    ghostRequest_.setTablename(form.tablename);
-    ghostRequest_.setStatement(form.statement);
-    await ghostclient_.executeNohup(ghostRequest_,{},( err = grpcweb.Error, APIResponse) => {
-        console.log('Grpc execute err : '+err)
-        APIResponse !== null ? setRender(APIResponse.getResponsemessage()) : setRender('Execute is not available')
+  const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
+  const ghostRequest_ = new ghostRequest();
+  ghostRequest_.setSchemaname(form.schemaname);
+  ghostRequest_.setTablename(form.tablename);
+  ghostRequest_.setStatement(form.statement);
+  await ghostclient_.executeNohup(ghostRequest_,{},( err = grpcweb.Error, APIResponse) => {
+      console.log('Grpc execute err : '+err)
+      APIResponse !== null ? setRender(APIResponse.getResponsemessage()) : setRender('Execute is not available')
   });
 };
 
 export const fetchGrpcGhostInteractive = async( setRender, form, grpcPort) => {
-    const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
-    const interactiveRequest_ = new interactiveRequest();
-    interactiveRequest_.setSchemaname(form.schemaname);
-    interactiveRequest_.setTablename(form.tablename);
-    interactiveRequest_.setGhostcommand(form.ghostcommand);
-    await ghostclient_.interactive(interactiveRequest_,{},( err = grpcweb.Error, APIResponse) => {
-        console.log('Grpc interactive err : '+err)
-        APIResponse !== null ? setRender(APIResponse.getResponsemessage().split("\n")) : setRender(['Interactive is not available'])
+  const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
+  const interactiveRequest_ = new interactiveRequest();
+  interactiveRequest_.setSchemaname(form.schemaname);
+  interactiveRequest_.setTablename(form.tablename);
+  interactiveRequest_.setGhostcommand(form.ghostcommand);
+  await ghostclient_.interactive(interactiveRequest_,{},( err = grpcweb.Error, APIResponse) => {
+      console.log('Grpc interactive err : '+err)
+      APIResponse !== null ? setRender(APIResponse.getResponsemessage().split("\n")) : setRender(['Interactive is not available'])
   });
 };
 
 export const fetchGrpcGhostCutover = async( setRender, form, grpcPort ) => {
-    const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
-    const emptyRequest_ = new Empty();
-    await ghostclient_.cutover(emptyRequest_,{},( err = grpcweb.Error, APIResponse) => {
-        console.log('Grpc cutover err : '+err)
-        APIResponse !== null ? setRender('Cut over completed') : setRender('Cut over is not available')
+  const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
+  const emptyRequest_ = new Empty();
+  await ghostclient_.cutover(emptyRequest_,{},( err = grpcweb.Error, APIResponse) => {
+      console.log('Grpc cutover err : '+err)
+      APIResponse !== null ? setRender('Cut over completed') : setRender('Cut over is not available')
   });
 };

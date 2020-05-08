@@ -21,8 +21,7 @@ const Ghost = ({classes}) => {
   const [grpcPort, setGrpcPort] = useState('');
 
   useEffect(() => {
-    if(!login.isLogged)history.push('/login')
-    fetchLock(setGhostLock)
+    !login.isLogged? history.push('/login') : fetchLock(setGhostLock)
   },[])
 
 

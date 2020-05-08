@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useHistory } from "react-router-dom";
 import { updatePassword } from '../apicall';
-import { useSelector , useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 //Styles
 import { withStyles } from '@material-ui/core/styles';
@@ -16,30 +17,27 @@ import Alert from '@material-ui/lab/Alert';
 const MyPage = ({classes}) => {
     
     const login = useSelector(state => state.loginReducer);
+    const history = useHistory();
 
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState({isOpen : false, severity : "warning", message : ""});
     const [form, setForm] = useState({
         password: '',
         new_password: '',
         confirm_password: ''
     })
 
-    
+    useEffect(() => {
+        if(!login.isLogged) history.push('/login')
+    },[])
 
     const handleChange = e => {
-        const name = e.target.name
-        const value = e.target.value
-        setForm(prop => {
-            return {
-                ...prop,
-                [name]: value
-            }
-        })
+        const  { name, value } = e.target
+        setForm(prop => { return { ...prop, [name]: value }})
     }
     
     const handleSubmit = e => {
         e.preventDefault()
-        updatePassword({form, login, open})
+        updatePassword({form, login, setOpen})
     }
     
 
@@ -53,9 +51,9 @@ const MyPage = ({classes}) => {
                         <TextField className={classes.textfield} id="confirm_password" label="Confirm New Password"  type='password' name='confirm_password' onChange={handleChange}/><br/>
                         <Button className={classes.button} color="primary" type='submit'>Change password</Button>
                     </form>
-                    <Collapse in={open}>
-                        <Alert severity="warning"  action={ <IconButton aria-label="close" color="inherit" size="small" onClick={() => {setOpen(false);}}> <CloseIcon fontSize="inherit" /> </IconButton>}>
-                            Please type same password in confirm password
+                    <Collapse in={open.isOpen}>
+                        <Alert severity={open.severity} action={ <IconButton aria-label="close" color="inherit" size="small" onClick={() => {setOpen(prop =>{return{...prop, isOpen: false,}});}}> <CloseIcon fontSize="inherit" /> </IconButton>}>
+                            {open.message}
                         </Alert>
                     </Collapse>
                 </Paper>    
