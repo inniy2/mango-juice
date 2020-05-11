@@ -29,15 +29,19 @@ const Login = ({classes}) => {
 
   const Alert = props => {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
-  } 
+  }
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
-      return;
+      setOpen( prop => {
+        return {...prop,
+          isOpen: false,
+        }
+      });
     }
     setOpen( prop => {
-      return {...prop, 
-        isOpen: !open.isOpen,
+      return {...prop,
+        isOpen: false,
       }
     });
 
@@ -47,19 +51,19 @@ const Login = ({classes}) => {
   const handleChange = e => {
     const { name, value } = e.target
     setForm(prop => {
-      return {...prop, 
+      return {...prop,
         [name]: value
       }
     });
   };
-  
+
 
   const handleSubmit = e => {
     e.preventDefault()
     fetchUser(form, open, setOpen, history, dispatch)
   };
 
-  
+
   return (
     <div className={classes.root}>
       <Grid container spacing={3}>
@@ -73,12 +77,12 @@ const Login = ({classes}) => {
             </form>
             <Snackbar open={open.isOpen} autoHideDuration={6000} onClose={handleClose}>
               <Alert onClose={handleClose} severity={open.severity}>{open.message}</Alert>
-            </Snackbar>  
+            </Snackbar>
           </Paper>
         </Grid>
       </Grid>
 
-    </div> 
+    </div>
   );
 }
 

@@ -3,7 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useHistory } from "react-router-dom";
 //import '../App.css';
 
-import { fetchGrpcDiskSize, fetchGrpcTableDefinition, fetchGrpcGhostDryrun, fetchGrpcGhostExecute, fetchGrpcGhostInteractive, fetchGrpcGhostCutover, confirmClick, 
+import { fetchGrpcDiskSize, fetchGrpcTableDefinition, fetchGrpcGhostDryrun, fetchGrpcGhostExecute, fetchGrpcGhostInteractive, fetchGrpcGhostCutover, confirmClick,
+          fetchGrpcGhostPutPanicFlag, fetchGrpcGhostCleanUp,
          fetchLock, requireLock, releaseLock } from '../apicall';
 
 //Styles
@@ -15,15 +16,16 @@ import CloseIcon from '@material-ui/icons/Close';
 //Alerts
 import Alert from '@material-ui/lab/Alert';
 
+
 const Ghost = ({classes}) => {
   const login = useSelector(state => state.loginReducer);
-  
+
   const dispatch = useDispatch();
   const history = useHistory();
 
   const [ghostLock, setGhostLock] = useState([]);
   const [grpcPort, setGrpcPort] = useState('');
-  
+
   const [modal, setModalOpen] = useState({ isOpen: false, handlerName: '', message: ''})
   const [alert, setAlertOpen] = useState({ isOpen: false, handlerName: '', message: ''})
 
@@ -42,6 +44,12 @@ const Ghost = ({classes}) => {
     ghostcommand: ''
   });
 
+  const [muliAlertOpen, setMuliAlertOpen] = useState({
+    isOpen: false,
+    severity: '',
+    message: ''
+  })
+
   const [isReserved, setReserve] = useState(false);
   const [diskSize, setDiskSize] = useState('');
   const [tableDefinition, setTableDefinition] = useState([]);
@@ -49,24 +57,27 @@ const Ghost = ({classes}) => {
   const [executeResult, setExecuteResult] = useState('');
   const [interactiveResult, setInteractiveResult] = useState('');
   const [cutoverResult, setCutoverResult] = useState('');
+  const [panicflagResult, setPanicFlagResult] = useState('');
 
-  
+
 
   const handleReserve = e => {
     requireLock({form, login, setReserve, setGhostLock, setGrpcPort, setAlertOpen})
   }
 
   const handleRelease = e => {
-    releaseLock(form, login, setReserve, setGhostLock)
+    //releaseLock(form, login, setReserve, setGhostLock)
+    setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "handleRelease", message: 'You request to Release.'}})
   }
 
   const handleDryrun = e => {
     if(isReserved){
+      console.log(form)
       fetchGrpcDiskSize(setDiskSize, form, grpcPort)
       fetchGrpcTableDefinition(setTableDefinition, form, grpcPort)
-      fetchGrpcGhostDryrun(setDryrunResult, form, grpcPort)
-      setForm(prevForm => {
-        return {...form, dryrun: true};
+      fetchGrpcGhostDryrun({setDryrunResult, form, grpcPort, setMuliAlertOpen})
+      setForm(prop => {
+        return {...prop, dryrun: true};
       })
     }else{
       setAlertOpen(prop => { return  {...prop, isOpen : true, handlerName: "handleDryrun" , message: "Reserve the host first"}})
@@ -74,7 +85,9 @@ const Ghost = ({classes}) => {
   }
 
   const handleExecute = e => {
-    form.dryrun ? setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "handleExecute", message: 'You request to ALTER.'}}) : alert('Run test first before execute')
+    form.dryrun? setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "handleExecute", message: 'You request to ALTER.'}}) :
+      setAlertOpen(prop => { return  {...prop, isOpen : true, handlerName: "handleDryrun" , message: "Run test first before execute"}})
+      //alert('Run test first before execute')
   }
 
   const handleInteractive = e => {
@@ -82,15 +95,17 @@ const Ghost = ({classes}) => {
   }
 
   const handleCutover = e => {
-    fetchGrpcGhostCutover(setCutoverResult, form, grpcPort)
+    //fetchGrpcGhostCutover({setCutoverResult, form, grpcPort, setMuliAlertOpen})
+    setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "handleCutover", message: 'You request to CUTOVER.'}})
   }
 
   const handleAbort = e => {
-    //to-do
+    //fetchGrpcGhostPutPanicFlag( { setPanicFlagResult, grpcPort, setMuliAlertOpen })
+    setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "handleAbort", message: 'You request to ABORT.'}})
   }
 
   const handleCleanup = e => {
-    //to-do
+    setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "handleCleanup", message: 'You request to Clean up.'}})
   }
 
   const handleSubmit = (e) => {
@@ -100,8 +115,9 @@ const Ghost = ({classes}) => {
 
   const handleChange = (e) => {
     const { name, value }  = e.target
+    setReserve(false)
     setForm(prop => {
-      return {...prop, [name]: value};
+      return {...prop, [name]: value, dryrun: false};
     })
   };
 
@@ -113,9 +129,32 @@ const Ghost = ({classes}) => {
 
   const handleProceed = e => {
     setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen,}})
-    if (modal.handlerName === "handleExecute" ) { fetchGrpcGhostExecute({setExecuteResult, form, grpcPort, modal, dispatch}) }
+    if (modal.handlerName === "handleExecute" ) { fetchGrpcGhostExecute({setExecuteResult, setMuliAlertOpen, form, grpcPort, modal, dispatch}) }
+    else if (modal.handlerName === "handleRelease") { releaseLock({form, login, setReserve, setGhostLock}) }
+    else if (modal.handlerName === "handleAbort") { fetchGrpcGhostPutPanicFlag( { setPanicFlagResult, grpcPort, setMuliAlertOpen })}
+    else if (modal.handlerName === "handleCleanup") { fetchGrpcGhostCleanUp( { grpcPort, setMuliAlertOpen })}
+    else if (modal.handlerName === "handleCutover") { fetchGrpcGhostCutover( { grpcPort, setMuliAlertOpen })}
   }
 
+  const MuliAlert = props => {
+    return <Alert elevation={6} variant="filled" {...props} />;
+  }
+
+  const handleMuliAlerClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      setMuliAlertOpen( prop => {
+        return {...prop,
+          isOpen: false,
+        }
+      });
+    }
+    setMuliAlertOpen( prop => {
+      return {...prop,
+        isOpen: false,
+      }
+    });
+
+  };
 
   return (
     <div className={classes.root}>
@@ -213,9 +252,11 @@ const Ghost = ({classes}) => {
         </Grid>
 
 
-      { form.ghosthost !== '' ? form.ghosthost : '' }
-      { executeResult !== '' ? executeResult : '' }
-      { cutoverResult !== '' ? cutoverResult : '' }
+      {
+        //form.ghosthost !== '' ? form.ghosthost : ''
+        //panicflagResult !== '' ? panicflagResult : ''
+        //executeResult !== '' ? executeResult : ''
+      }
 
       </form>
       <Modal open={modal.isOpen} aria-labelledby="simple-modal-title" aria-describedby="simple-modal-description">
@@ -228,6 +269,9 @@ const Ghost = ({classes}) => {
         </div>
         </DialogContent>
       </Modal>
+      <Snackbar open={muliAlertOpen.isOpen} autoHideDuration={6000} onClose={handleMuliAlerClose}>
+        <MuliAlert onClose={handleMuliAlerClose} severity={muliAlertOpen.severity}>{muliAlertOpen.message}</MuliAlert>
+      </Snackbar>
     </div>
   );
 

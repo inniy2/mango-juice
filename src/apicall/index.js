@@ -17,14 +17,14 @@ export const fetchUser = async (form, open, setRender, history, dispatch) => {
     try{
       const data = await response.json();
       if (data.password === form.password) {
-        dispatch(signin(form.username)); 
+        dispatch(signin(form.username));
         history.push('/ghost')
       }else{
         setRender(privOpen => {
           return {...open,
             isOpen: !open.isOpen,
             severity: 'info',
-            message: 'Password is wrong' 
+            message: 'Password is wrong'
           }
         });
       }
@@ -34,7 +34,7 @@ export const fetchUser = async (form, open, setRender, history, dispatch) => {
         return {...open,
           isOpen: !open.isOpen,
           severity: 'warning',
-          message: 'User is not founded' 
+          message: 'User is not founded'
         }
       });
     };
@@ -106,7 +106,8 @@ export const requireLock = async prop => {
 };
 
 
-export const releaseLock = async ( form, login, setResetReservender, setGhostLock ) => {
+export const releaseLock = async prop  => {
+  const { form, login, setReserve, setGhostLock } = prop
   const response = await fetch(springUrl+'/api/releaseLock',{
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -116,8 +117,8 @@ export const releaseLock = async ( form, login, setResetReservender, setGhostLoc
     const data = await response.json();
     console.log('releaseLock')
     console.log(data)
-    if(setResetReservender && data){setResetReservender(!data)}
-    
+    setReserve && data? setReserve(!data) : setReserve(data)
+
   }catch(error){
     console.log("releaseLock catch 1 : "+ error)
   };
@@ -143,8 +144,8 @@ export const releaseLock = async ( form, login, setResetReservender, setGhostLoc
 
 export const updatePassword = async prop => {
   const { form, login, setOpen } = prop
-  if (form.new_password !== form.confirm_password) { 
-    setOpen(prop =>{return {...prop, isOpen: true, severity : "warning", message : "Please type same password in confirm password"}}) 
+  if (form.new_password !== form.confirm_password) {
+    setOpen(prop =>{return {...prop, isOpen: true, severity : "warning", message : "Please type same password in confirm password"}})
   }else {
     const response = await fetch(springUrl+'/api/updatePassword',{
       method: 'POST',
@@ -157,7 +158,7 @@ export const updatePassword = async prop => {
         setOpen(prop =>{return {...prop, isOpen: true, severity : "warning", message: "Password update Failed."}})
     }catch(error){
       console.log("updatePassword catch 1 : "+ error)
-    };    
+    };
   }
 };
 
@@ -188,7 +189,8 @@ export const fetchGrpcTableDefinition = async( setRender, form, grpcPort) => {
   });
 };
 
-export const fetchGrpcGhostDryrun = async( setRender, form, grpcPort) => {
+export const fetchGrpcGhostDryrun = async prop => {
+  const {setDryrunResult, form, grpcPort, setMuliAlertOpen } = prop
   const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
   const ghostRequest_ = new ghostRequest();
   ghostRequest_.setSchemaname(form.schemaname);
@@ -196,14 +198,16 @@ export const fetchGrpcGhostDryrun = async( setRender, form, grpcPort) => {
   ghostRequest_.setStatement(form.statement);
   await ghostclient_.dryrun(ghostRequest_,{},( err = grpcweb.Error, APIResponse) => {
       console.log('Grpc dryrun err : '+err)
-      APIResponse !== null ? setRender(APIResponse.getResponsemessage().split("\n")) : setRender(['Dry Run is not available'])
+      APIResponse !== null ? setDryrunResult(APIResponse.getResponsemessage().split("\n")) : setDryrunResult(['Dry Run is not available'])
+      APIResponse !== null ? setMuliAlertOpen(prop => { return { ...prop, isOpen: !prop.isOpen, severity: 'info', message: 'Check dry run result.'}})
+          : setMuliAlertOpen(prop => { return { ...prop, isOpen: !prop.isOpen, severity: 'info', message: 'Dry run failed'}})
   });
 };
 
 
 //alter
 export const fetchGrpcGhostExecute = async prop => {
-  const {setExecuteResult, form, grpcPort } = prop
+  const {setExecuteResult, setMuliAlertOpen, form, grpcPort } = prop
   const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
   const ghostRequest_ = new ghostRequest();
   ghostRequest_.setSchemaname(form.schemaname);
@@ -211,7 +215,9 @@ export const fetchGrpcGhostExecute = async prop => {
   ghostRequest_.setStatement(form.statement);
   await ghostclient_.executeNohup(ghostRequest_,{},( err = grpcweb.Error, APIResponse) => {
       console.log('Grpc execute err : '+err)
-      APIResponse !== null ? setExecuteResult(APIResponse.getResponsemessage()) : setExecuteResult('Execute is not available')
+      //APIResponse !== null ? setExecuteResult(APIResponse.getResponsemessage()) : setExecuteResult('Execute is not available')
+      APIResponse !== null ? setMuliAlertOpen(prop => { return { ...prop, isOpen: !prop.isOpen, severity: 'info', message: APIResponse.getResponsemessage()}})
+        : setMuliAlertOpen(prop => { return { ...prop, isOpen: !prop.isOpen, severity: 'info', message: 'Alter is failed'}})
   });
 };
 
@@ -227,11 +233,49 @@ export const fetchGrpcGhostInteractive = async( setRender, form, grpcPort) => {
   });
 };
 
-export const fetchGrpcGhostCutover = async( setRender, form, grpcPort ) => {
+export const fetchGrpcGhostCutover = async prop => {
+  const { grpcPort, setMuliAlertOpen } = prop
   const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
   const emptyRequest_ = new Empty();
   await ghostclient_.cutover(emptyRequest_,{},( err = grpcweb.Error, APIResponse) => {
       console.log('Grpc cutover err : '+err)
-      APIResponse !== null ? setRender('Cut over completed') : setRender('Cut over is not available')
+      //APIResponse !== null ? setCutoverResult('Cut over completed ') : setCutoverResult('Cut over is not available')
+      APIResponse !== null ? setMuliAlertOpen(prop => { return { ...prop, isOpen: !prop.isOpen, severity: 'info', message: 'Alter is Cut overed'}})
+      : setMuliAlertOpen(prop => { return { ...prop, isOpen: !prop.isOpen, severity: 'info', message: 'Cut over failed'}})
   });
 };
+
+
+export const fetchGrpcGhostPutPanicFlag = async prop => {
+  const { setPanicFlagResult, grpcPort, setMuliAlertOpen } = prop
+  const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
+  const emptyRequest_ = new Empty();
+  try{
+    await ghostclient_.putpanicflag(emptyRequest_,{},( err = grpcweb.Error, APIResponse) => {
+      console.log('Grpc putpanicflag err : '+err)
+      APIResponse !== null ? setMuliAlertOpen(prop => { return { ...prop, isOpen: !prop.isOpen, severity: 'info', message: 'Alter is aborted'}})
+          : setMuliAlertOpen(prop => { return { ...prop, isOpen: !prop.isOpen, severity: 'info', message: 'Abort failed'}})
+    });
+  }catch(e){
+    console.log(e)
+  }
+};
+
+
+export const fetchGrpcGhostCleanUp = async prop => {
+  const { grpcPort, setMuliAlertOpen } = prop
+  const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
+  const emptyRequest_ = new Empty();
+  try{
+    await ghostclient_.cleanup(emptyRequest_,{},( err = grpcweb.Error, APIResponse) => {
+      console.log('Grpc cleanup err : '+err)
+      APIResponse !== null ? setMuliAlertOpen(prop => { return { ...prop, isOpen: !prop.isOpen, severity: 'info', message: 'Clean up is completed.'}})
+          : setMuliAlertOpen(prop => { return { ...prop, isOpen: !prop.isOpen, severity: 'info', message: 'Clean up failed'}})
+    });
+  }catch(e){
+    console.log(e)
+  }
+};
+
+
+
