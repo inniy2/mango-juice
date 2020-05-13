@@ -1,0 +1,45 @@
+---
+- name: Install apt packages
+  apt:
+    pkg:
+    - nginx
+    state: present
+
+- name: Create files
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+    owner: root
+    group: root
+  with_items:
+    - { src: 'default', mode: '0644', dest: '/etc/nginx/sites-available/default' }
+    - { src: 'build',   mode: '0644', dest: '/etc/nginx/sites-available/build'   }
+    - { src: 'build',   mode: '0644', dest: '/etc/nginx/sites-available/build'   }
+
+- name: Remove old build
+  shell: rm -rf /var/www/build
+
+- name: Move new build
+  shell: mv /home/sangsun/build /var/www/
+
+- name: Change owner
+  shell: chown -R root.root /var/www/build
+
+- name: Create symbolilc link
+  file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    state: "{{ item.state }}"
+    owner: root
+    group: root
+  with_items:
+    - { src: '/etc/nginx/sites-available/build', state: 'link', dest: '/etc/nginx/sites-enabled/build' }
+
+
+- name: restart service
+  systemd:
+    name: nginx
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
