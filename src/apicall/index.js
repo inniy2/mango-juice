@@ -2,10 +2,7 @@ import * as grpcweb from 'grpc-web';
 import { ghostClient } from '../generated/ghost_grpc_web_pb';
 import { diskRequest, definitionRequest, ghostRequest, interactiveRequest, APIResponse, Empty } from '../generated/ghost_pb';
 import { signin  } from '../actions';
-
-
-const enovyUrl = 'localhost'
-const springUrl = 'http://localhost:8080'
+import { enovyUrl , springUrl} from './config';
 
 
 export const fetchUser = async (form, open, setRender, history, dispatch) => {

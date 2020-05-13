@@ -25,6 +25,7 @@ export const ghostStyles = theme => ({
       marginTop: 10,
       marginLeft: 10,
       marginRight: 10,
+      marginBottom: 20,
     },
     textField: {
       marginTop: 10,
@@ -37,7 +38,8 @@ export const ghostStyles = theme => ({
     modal: {
       position: 'absolute',
       width: 400,
-      backgroundColor: theme.palette.text.disabled,
+      //backgroundColor: theme.palette.text.paper,
+      backgroundColor: '#ffffff90',
       // border: '2px solid #000',
       boxShadow: theme.shadows[5],
       padding: theme.spacing(2, 4, 3),
@@ -89,7 +91,7 @@ export const loginStyles = theme => ({
     },
     button: {
       marginTop: 20,
-      marginBottom: 300,
+      marginBottom: 500,
     },
   });
 

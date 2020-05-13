@@ -13,8 +13,8 @@ const Footer = ({classes}) => {
             <Grid container spacing={3}>
                 <Grid item xs={12} >
                     <Paper className={classes.paper}>
-                        <Typography className={classes.text} >Mango Juice</Typography>
-                        <Typography variant="caption" gutterBottom>@copyright 2020</Typography>
+                        <Typography className={classes.text} >Moombbu Juice</Typography>
+                        <Typography variant="caption" gutterBottom>@copyright SRE 2020</Typography>
                     </Paper>
                 </Grid>
             </Grid>

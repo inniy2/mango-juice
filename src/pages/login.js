@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector , useDispatch } from 'react-redux';
 import { useHistory } from "react-router-dom";
 import { fetchUser } from '../apicall';
@@ -15,6 +15,10 @@ const Login = ({classes}) => {
   const login = useSelector(state => state.loginReducer);
   const history = useHistory();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    document.title = "Login"
+  }, []);
 
   const [open, setOpen] = useState({
     isOpen: false,

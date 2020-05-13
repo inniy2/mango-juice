@@ -30,6 +30,7 @@ const Ghost = ({classes}) => {
   const [alert, setAlertOpen] = useState({ isOpen: false, handlerName: '', message: ''})
 
   useEffect(() => {
+    document.title = "Ghost"
     !login.isLogged? history.push('/login') : fetchLock(setGhostLock)
   },[])
 
@@ -72,7 +73,6 @@ const Ghost = ({classes}) => {
 
   const handleDryrun = e => {
     if(isReserved){
-      console.log(form)
       fetchGrpcDiskSize(setDiskSize, form, grpcPort)
       fetchGrpcTableDefinition(setTableDefinition, form, grpcPort)
       fetchGrpcGhostDryrun({setDryrunResult, form, grpcPort, setMuliAlertOpen})
@@ -91,21 +91,21 @@ const Ghost = ({classes}) => {
   }
 
   const handleInteractive = e => {
-    fetchGrpcGhostInteractive(setInteractiveResult, form, grpcPort)
+    isReserved? fetchGrpcGhostInteractive(setInteractiveResult, form, grpcPort) : setAlertOpen(prop => { return  {...prop, isOpen : true, handlerName: "handleInteractive" , message: "Reserve the host first"}})
   }
 
   const handleCutover = e => {
     //fetchGrpcGhostCutover({setCutoverResult, form, grpcPort, setMuliAlertOpen})
-    setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "handleCutover", message: 'You request to CUTOVER.'}})
+    isReserved? setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "handleCutover", message: 'You request to CUTOVER.'}}) : setAlertOpen(prop => { return  {...prop, isOpen : true, handlerName: "handleCutover" , message: "Reserve the host first"}})
   }
 
   const handleAbort = e => {
     //fetchGrpcGhostPutPanicFlag( { setPanicFlagResult, grpcPort, setMuliAlertOpen })
-    setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "handleAbort", message: 'You request to ABORT.'}})
+    isReserved? setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "handleAbort", message: 'You request to ABORT.'}}) : setAlertOpen(prop => { return  {...prop, isOpen : true, handlerName: "handleAbort" , message: "Reserve the host first"}})
   }
 
   const handleCleanup = e => {
-    setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "handleCleanup", message: 'You request to Clean up.'}})
+    isReserved? setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "handleCleanup", message: 'You request to Clean up.'}}) : setAlertOpen(prop => { return  {...prop, isOpen : true, handlerName: "handleCleanup" , message: "Reserve the host first"}})
   }
 
   const handleSubmit = (e) => {
@@ -214,6 +214,8 @@ const Ghost = ({classes}) => {
               { interactiveResult === '' ? '' : interactiveResult.map((item, i ) => {
                 if(item.match(/error/gi) !== null){
                   return <span style={{color: "red"}} key={i}>{item}<br/></span>
+                }else if(item.match(/cut-over;/gi) !== null) {
+                  return <span style={{color: "blue"}} key={i}>{item}<br/></span>
                 }else {
                   return <span key={i}>{item}<br/></span>
                 }
@@ -225,7 +227,7 @@ const Ghost = ({classes}) => {
           */}
           <Grid item xs={12}>
             <Paper className={classes.paper}>
-              { diskSize === '' ? '' : <li> Disk size is {diskSize} </li> } <br/>
+              { diskSize === '' ? '' : <li> Available disk size is {diskSize} </li> } <br/>
             </Paper>
           </Grid>
           {/*

@@ -150,6 +150,6 @@ add to source https://github.com/reduxjs/redux-devtools
 
 npm run-script build
 
-cd ansible
+scp -r build ghost-d1.sqldb:/home/sangsun/
 
-scp -r ../build ghost-d1.sqldb:/home/sangsun/
+cd ansible

@@ -10,6 +10,11 @@
 
 # production
 /build
+/src/apicall/config.js
+/src/apicall/config-pro.js
+/src/apicall/config-test.js
+deploy.sh
+start.sh
 
 # misc
 .DS_Store

@@ -76,7 +76,7 @@ const NavMate = ({classes}) => {
               </Menu>
           </Fragment>
           <Typography variant="h5" className={classes.title}>
-            Mango Juice
+            Moombbu Juice
           </Typography>
           {login.isLogged? <Button  color="inherit" onClick={handleLogout}>Logout</Button>: ''}
 

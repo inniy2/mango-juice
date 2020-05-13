@@ -15,7 +15,7 @@ import Alert from '@material-ui/lab/Alert';
 
 
 const MyPage = ({classes}) => {
-    
+
     const login = useSelector(state => state.loginReducer);
     const history = useHistory();
 
@@ -27,6 +27,7 @@ const MyPage = ({classes}) => {
     })
 
     useEffect(() => {
+        document.title = "My Page"
         if(!login.isLogged) history.push('/login')
     },[])
 
@@ -34,12 +35,12 @@ const MyPage = ({classes}) => {
         const  { name, value } = e.target
         setForm(prop => { return { ...prop, [name]: value }})
     }
-    
+
     const handleSubmit = e => {
         e.preventDefault()
         updatePassword({form, login, setOpen})
     }
-    
+
 
     return(
         <Grid container spacing={3}>
@@ -56,7 +57,7 @@ const MyPage = ({classes}) => {
                             {open.message}
                         </Alert>
                     </Collapse>
-                </Paper>    
+                </Paper>
             </Grid>
         </Grid>
     )
