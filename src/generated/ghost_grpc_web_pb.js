@@ -780,5 +780,165 @@ proto.ghostPromiseClient.prototype.interactive =
 };
 
 
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.definitionRequest,
+ *   !proto.APIResponse>}
+ */
+const methodDescriptor_ghost_rowcount = new grpc.web.MethodDescriptor(
+  '/ghost/rowcount',
+  grpc.web.MethodType.UNARY,
+  proto.definitionRequest,
+  proto.APIResponse,
+  /**
+   * @param {!proto.definitionRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.APIResponse.deserializeBinary
+);
+
+
+/**
+ * @const
+ * @type {!grpc.web.AbstractClientBase.MethodInfo<
+ *   !proto.definitionRequest,
+ *   !proto.APIResponse>}
+ */
+const methodInfo_ghost_rowcount = new grpc.web.AbstractClientBase.MethodInfo(
+  proto.APIResponse,
+  /**
+   * @param {!proto.definitionRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.APIResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.definitionRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.Error, ?proto.APIResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.APIResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.ghostClient.prototype.rowcount =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/ghost/rowcount',
+      request,
+      metadata || {},
+      methodDescriptor_ghost_rowcount,
+      callback);
+};
+
+
+/**
+ * @param {!proto.definitionRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.APIResponse>}
+ *     A native promise that resolves to the response
+ */
+proto.ghostPromiseClient.prototype.rowcount =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/ghost/rowcount',
+      request,
+      metadata || {},
+      methodDescriptor_ghost_rowcount);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.ibdRequest,
+ *   !proto.APIResponse>}
+ */
+const methodDescriptor_ghost_ibdsize = new grpc.web.MethodDescriptor(
+  '/ghost/ibdsize',
+  grpc.web.MethodType.UNARY,
+  proto.ibdRequest,
+  proto.APIResponse,
+  /**
+   * @param {!proto.ibdRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.APIResponse.deserializeBinary
+);
+
+
+/**
+ * @const
+ * @type {!grpc.web.AbstractClientBase.MethodInfo<
+ *   !proto.ibdRequest,
+ *   !proto.APIResponse>}
+ */
+const methodInfo_ghost_ibdsize = new grpc.web.AbstractClientBase.MethodInfo(
+  proto.APIResponse,
+  /**
+   * @param {!proto.ibdRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.APIResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.ibdRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.Error, ?proto.APIResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.APIResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.ghostClient.prototype.ibdsize =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/ghost/ibdsize',
+      request,
+      metadata || {},
+      methodDescriptor_ghost_ibdsize,
+      callback);
+};
+
+
+/**
+ * @param {!proto.ibdRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.APIResponse>}
+ *     A native promise that resolves to the response
+ */
+proto.ghostPromiseClient.prototype.ibdsize =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/ghost/ibdsize',
+      request,
+      metadata || {},
+      methodDescriptor_ghost_ibdsize);
+};
+
+
 module.exports = proto;
 

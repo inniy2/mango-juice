@@ -103,6 +103,40 @@ export const requireLock = async prop => {
 };
 
 
+export const executeLock = async prop => {
+  const { form, login, setReserve, setGhostLock } = prop
+  const response = await fetch(springUrl+'/api/executeLock',{
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ghost_host: form.ghosthost, user_name: login.user_name })
+  });
+  try{
+    const data = await response.json();
+    setReserve(data)
+  }catch(error){
+    //alert("requireLock 1: Message is not defined.")
+    //setAlertOpen(prop => { return  {...prop, isOpen : true, handlerName: "requireLock" , message: "1. Message is not defined"}})
+    console.log("requireLock catch 1 : "+ error)
+  };
+
+  const responseGetLock = await fetch(springUrl+'/api/getLock',{
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ghost_host: form.ghosthost, user_name: login.user_name })
+  });
+  try{
+    const data = await responseGetLock.json();
+    setGhostLock(data)
+
+  }catch(error){
+    //alert("requireLock 2 : Message is not defined.")
+    //setAlertOpen(prop => { return  {...prop, isOpen : true, handlerName: "requireLock" , message: "2. Message is not defined"}})
+    console.log("requireLock catch 2 : "+ error)
+  };
+
+};
+
+
 export const releaseLock = async prop  => {
   const { form, login, setReserve, setGhostLock } = prop
   const response = await fetch(springUrl+'/api/releaseLock',{
@@ -216,6 +250,9 @@ export const fetchGrpcGhostExecute = async prop => {
       APIResponse !== null ? setMuliAlertOpen(prop => { return { ...prop, isOpen: !prop.isOpen, severity: 'info', message: APIResponse.getResponsemessage()}})
         : setMuliAlertOpen(prop => { return { ...prop, isOpen: !prop.isOpen, severity: 'info', message: 'Alter is failed'}})
   });
+
+
+
 };
 
 export const fetchGrpcGhostInteractive = async( setRender, form, grpcPort) => {

@@ -3,14 +3,14 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useHistory } from "react-router-dom";
 //import '../App.css';
 
-import { fetchGrpcDiskSize, fetchGrpcTableDefinition, fetchGrpcGhostDryrun, fetchGrpcGhostExecute, fetchGrpcGhostInteractive, fetchGrpcGhostCutover, confirmClick,
+import { fetchGrpcDiskSize, fetchGrpcTableDefinition, fetchGrpcGhostDryrun, fetchGrpcGhostExecute, fetchGrpcGhostInteractive, fetchGrpcGhostCutover,
           fetchGrpcGhostPutPanicFlag, fetchGrpcGhostCleanUp,
-         fetchLock, requireLock, releaseLock } from '../apicall';
+         fetchLock, requireLock, releaseLock, executeLock } from '../apicall';
 
 //Styles
 import { withStyles } from '@material-ui/core/styles';
 import { ghostStyles as styles } from '../styles'
-import { Paper, Grid, TextField, Button, Modal, DialogContent, Collapse, IconButton, Snackbar } from '@material-ui/core';
+import { Paper, Grid, TextField, Button, Modal, DialogContent, Collapse, IconButton, Snackbar, FormControl } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 
 //Alerts
@@ -68,7 +68,7 @@ const Ghost = ({classes}) => {
 
   const handleRelease = e => {
     //releaseLock(form, login, setReserve, setGhostLock)
-    setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "handleRelease", message: 'You request to Release.'}})
+    if(isReserved) setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "handleRelease", message: 'You request to Release.'}})
   }
 
   const handleDryrun = e => {
@@ -76,6 +76,8 @@ const Ghost = ({classes}) => {
       fetchGrpcDiskSize(setDiskSize, form, grpcPort)
       fetchGrpcTableDefinition(setTableDefinition, form, grpcPort)
       fetchGrpcGhostDryrun({setDryrunResult, form, grpcPort, setMuliAlertOpen})
+      //to-do ibdsize
+      //to-do table_rows
       setForm(prop => {
         return {...prop, dryrun: true};
       })
@@ -85,7 +87,7 @@ const Ghost = ({classes}) => {
   }
 
   const handleExecute = e => {
-    form.dryrun? setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "handleExecute", message: 'You request to ALTER.'}}) :
+    isReserved && form.dryrun? setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen, handlerName: "handleExecute", message: 'You request to ALTER.'}}) :
       setAlertOpen(prop => { return  {...prop, isOpen : true, handlerName: "handleDryrun" , message: "Run test first before execute"}})
       //alert('Run test first before execute')
   }
@@ -129,8 +131,16 @@ const Ghost = ({classes}) => {
 
   const handleProceed = e => {
     setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen,}})
-    if (modal.handlerName === "handleExecute" ) { fetchGrpcGhostExecute({setExecuteResult, setMuliAlertOpen, form, grpcPort, modal, dispatch}) }
-    else if (modal.handlerName === "handleRelease") { releaseLock({form, login, setReserve, setGhostLock}) }
+    if (modal.handlerName === "handleExecute" ) { 
+      fetchGrpcGhostExecute({setExecuteResult, setMuliAlertOpen, form, grpcPort, modal, dispatch}) 
+      executeLock({form, login, setReserve, setGhostLock})
+    } else if (modal.handlerName === "handleRelease") { 
+      releaseLock({form, login, setReserve, setGhostLock})
+      setReserve(false)
+      setForm(prop => {
+        return {...prop, dryrun: false};
+      })
+    }
     else if (modal.handlerName === "handleAbort") { fetchGrpcGhostPutPanicFlag( { setPanicFlagResult, grpcPort, setMuliAlertOpen })}
     else if (modal.handlerName === "handleCleanup") { fetchGrpcGhostCleanUp( { grpcPort, setMuliAlertOpen })}
     else if (modal.handlerName === "handleCutover") { fetchGrpcGhostCutover( { grpcPort, setMuliAlertOpen })}
@@ -169,14 +179,10 @@ const Ghost = ({classes}) => {
               {ghostLock.map((item, i) => {
                 return <Alert severity="info" key={i}>{item.ghost_host} is {item.lock_status} by {item.user_name} </Alert>
               })}
-              <Collapse in={alert.isOpen}>
-                <Alert severity="warning" action={ <IconButton aria-label="close" color="inherit" size="small" onClick={() => {setAlertOpen(prop =>{return{...prop, isOpen: false,}});}}> <CloseIcon fontSize="inherit" /> </IconButton>}>
-                  {alert.message}
-                </Alert>
-              </Collapse>
+              { isReserved? '' : <Alert severity="warning"> Please lock action before click any buttons.</Alert>}
               <Paper className={classes.paper}>
                 <TextField className={classes.textField} id="ghostHost" label="Ghost Host" name="ghosthost" onChange={handleChange}/><br/>
-                <Button className={classes.button} color="primary" type='submit' onClick={handleReserve}>Reserve Host</Button>
+                <Button className={classes.button} color="primary" type='submit' onClick={handleReserve}>Lock Operation</Button>
                 <Button className={classes.button} color="secondary" type='submit' onClick={handleRelease}>Release Host</Button>
               </Paper>
             </Paper>
@@ -189,7 +195,6 @@ const Ghost = ({classes}) => {
               <TextField id="dir" label="MySQL Directory" name='dir' onChange={handleChange}/><br/>
               <TextField className={classes.textField} id="schemaname" label="Schema Name" name="schemaname" onChange={handleChange}/><br/>
               <TextField className={classes.textField} id="tablename" label="Table Name" name="tablename" onChange={handleChange}/><br/>
-              <TextField className={classes.textField} id="statement" label="Statement" name="statement" onChange={handleChange}/><br/>
               <Button className={classes.button} color="primary" type='submit' onClick={handleDryrun}>Test</Button>
               <Button className={classes.button} color="secondary" type='submit' name="execute" onClick={handleExecute}>Alter</Button>
             </Paper>
@@ -199,7 +204,10 @@ const Ghost = ({classes}) => {
           */}
           <Grid item xs={6}>
             <Paper className={classes.paper}>
-              <TextField className={classes.textField} id="ghostcommand" label="Ghost Command" name="ghostcommand" onChange={handleChange}/><br/>
+              <FormControl fullWidth className={classes.margin}>
+                <TextField className={classes.textField} id="statement" label="Statement" name="statement" onChange={handleChange}/><br/>
+                <TextField className={classes.textField} id="ghostcommand"  label="Ghost Command" name="ghostcommand" onChange={handleChange}/><br/>
+              </FormControl>
               <Button className={classes.button} color="primary" type='submit' onClick={handleInteractive}>Interactive</Button>
               <Button className={classes.button} color="secondary" type='submit' onClick={handleCutover}>Cut Over</Button>
               <Button className={classes.button} color="secondary" type='submit' onClick={handleAbort}>Abort</Button>
