@@ -1,6 +1,6 @@
 import * as grpcweb from 'grpc-web';
 import { ghostClient } from '../generated/ghost_grpc_web_pb';
-import { diskRequest, definitionRequest, ghostRequest, interactiveRequest, APIResponse, Empty } from '../generated/ghost_pb';
+import { diskRequest, ibdRequest, definitionRequest, ghostRequest, interactiveRequest, APIResponse, Empty } from '../generated/ghost_pb';
 import { signin  } from '../actions';
 import { enovyUrl , springUrl} from './config';
 
@@ -201,10 +201,42 @@ export const fetchGrpcDiskSize = async( setRender, form, grpcPort) => {
   try{
     await ghostclient_.diskcheck(diskRequest_,{},( err = grpcweb.Error, APIResponse) => {
       console.log('Grpc disk size error : '+err)
-      APIResponse !== null ? setRender(APIResponse.getResponsemessage()) : setRender('Disk size is not available')
+      APIResponse !== null ? setRender(APIResponse.getResponsemessage()) : setRender('N/A')
     });
   }catch(e){
     console.log("fetchGrpcDiskSize catch 1 : "+ e)
+  }
+};
+
+export const fetchGrpcIbdSize = async prop => {
+  const {setIbdSize, form, grpcPort} = prop;
+  const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
+  const ibdRequest_ = new ibdRequest();
+  ibdRequest_.setDir(form.datadir);
+  ibdRequest_.setSchemaname(form.schemaname);
+  ibdRequest_.setTablename(form.tablename);
+  try{
+    await ghostclient_.ibdsize(ibdRequest_,{},( err = grpcweb.Error, APIResponse) => {
+      APIResponse !== null ? setIbdSize(APIResponse.getResponsemessage()) : setIbdSize('N/A')
+    });
+  }catch(e){
+    console.log("fetchGrpcIbdSize catch 1 : "+ e)
+  }
+};
+
+export const fetchGrpcRowCount = async prop => {
+  const {setRowCount, form, grpcPort} = prop;
+  const ghostclient_ = new ghostClient("http://"+enovyUrl+":"+grpcPort, null, null);
+  const definitionRequest_ = new definitionRequest();
+  definitionRequest_.setSchemaname(form.schemaname);
+  definitionRequest_.setTablename(form.tablename);
+  try{
+    await ghostclient_.rowcount(definitionRequest_,{},( err = grpcweb.Error, APIResponse) => {
+      APIResponse !== null ? setRowCount(APIResponse.getResponsemessage()) : setRowCount('N/A')
+      console.log(APIResponse.getResponsemessage())
+    });
+  }catch(e){
+    console.log("fetchGrpcRowCount catch 1 : "+ e)
   }
 };
 

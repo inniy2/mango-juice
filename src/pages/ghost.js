@@ -4,8 +4,9 @@ import { useHistory } from "react-router-dom";
 //import '../App.css';
 
 import { fetchGrpcDiskSize, fetchGrpcTableDefinition, fetchGrpcGhostDryrun, fetchGrpcGhostExecute, fetchGrpcGhostInteractive, fetchGrpcGhostCutover,
-          fetchGrpcGhostPutPanicFlag, fetchGrpcGhostCleanUp,
-         fetchLock, requireLock, releaseLock, executeLock } from '../apicall';
+fetchGrpcIbdSize, fetchGrpcRowCount,
+fetchGrpcGhostPutPanicFlag, fetchGrpcGhostCleanUp,
+fetchLock, requireLock, releaseLock, executeLock } from '../apicall';
 
 //Styles
 import { withStyles } from '@material-ui/core/styles';
@@ -38,6 +39,7 @@ const Ghost = ({classes}) => {
   const [form, setForm] = useState({
     ghosthost: '',
     dir: '',
+    datadir: '',
     schemaname: '',
     tablename: '',
     statement: '',
@@ -53,6 +55,8 @@ const Ghost = ({classes}) => {
 
   const [isReserved, setReserve] = useState(false);
   const [diskSize, setDiskSize] = useState('');
+  const [ibdSize, setIbdSize] = useState('');
+  const [rowCount, setRowCount] = useState('');
   const [tableDefinition, setTableDefinition] = useState([]);
   const [dryrunResult, setDryrunResult] = useState('');
   const [executeResult, setExecuteResult] = useState('');
@@ -77,7 +81,9 @@ const Ghost = ({classes}) => {
       fetchGrpcTableDefinition(setTableDefinition, form, grpcPort)
       fetchGrpcGhostDryrun({setDryrunResult, form, grpcPort, setMuliAlertOpen})
       //to-do ibdsize
+      fetchGrpcIbdSize({setIbdSize, form, grpcPort})
       //to-do table_rows
+      fetchGrpcRowCount({ setRowCount, form, grpcPort })
       setForm(prop => {
         return {...prop, dryrun: true};
       })
@@ -131,10 +137,10 @@ const Ghost = ({classes}) => {
 
   const handleProceed = e => {
     setModalOpen(prop => {return { ...prop, isOpen : !prop.isOpen,}})
-    if (modal.handlerName === "handleExecute" ) { 
-      fetchGrpcGhostExecute({setExecuteResult, setMuliAlertOpen, form, grpcPort, modal, dispatch}) 
+    if (modal.handlerName === "handleExecute" ) {
+      fetchGrpcGhostExecute({setExecuteResult, setMuliAlertOpen, form, grpcPort, modal, dispatch})
       executeLock({form, login, setReserve, setGhostLock})
-    } else if (modal.handlerName === "handleRelease") { 
+    } else if (modal.handlerName === "handleRelease") {
       releaseLock({form, login, setReserve, setGhostLock})
       setReserve(false)
       setForm(prop => {
@@ -193,6 +199,7 @@ const Ghost = ({classes}) => {
           <Grid item xs={6}>
             <Paper className={classes.paper}>
               <TextField id="dir" label="MySQL Directory" name='dir' onChange={handleChange}/><br/>
+              <TextField id="datadir" label="MySQL Data Directory" name='datadir' onChange={handleChange}/><br/>
               <TextField className={classes.textField} id="schemaname" label="Schema Name" name="schemaname" onChange={handleChange}/><br/>
               <TextField className={classes.textField} id="tablename" label="Table Name" name="tablename" onChange={handleChange}/><br/>
               <Button className={classes.button} color="primary" type='submit' onClick={handleDryrun}>Test</Button>
@@ -236,6 +243,8 @@ const Ghost = ({classes}) => {
           <Grid item xs={12}>
             <Paper className={classes.paper}>
               { diskSize === '' ? '' : <li> Available disk size is {diskSize} </li> } <br/>
+              { ibdSize  === '' ? '' : <li> Ibd size is {ibdSize} </li> } <br/>
+              { rowCount  === '' ? '' : <li> Row count is {rowCount} </li> } <br/>
             </Paper>
           </Grid>
           {/*
